@@ -20,6 +20,7 @@ func handlerFunc(response http.ResponseWriter, request *http.Request) {
 			return
 		}
 	} else {
+		response.WriteHeader(http.StatusNotFound)
 		_, err := fmt.Fprint(response, "<h1>请求页面未找到 :(</h1><p>如有疑虑，请联系我们。</p>")
 		if err != nil {
 			return
