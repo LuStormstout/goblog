@@ -1,0 +1,2 @@
+# goblog
+Go practice project
