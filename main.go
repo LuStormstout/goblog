@@ -2,59 +2,76 @@ package main
 
 import (
 	"fmt"
+	"github.com/gorilla/mux"
 	"net/http"
 )
 
-//defaultHandle
-func defaultHandle(writer http.ResponseWriter, request *http.Request) {
+func homeHandler(writer http.ResponseWriter, request *http.Request) {
 	writer.Header().Set("Content-Type", "text/html; charset=utf-8")
-
-	if request.URL.Path == "/" {
-		_, err := fmt.Fprint(writer, "<h1>Hello, 这里是 GoBlog!</h1>")
-		if err != nil {
-			return
-		}
-	} else {
-		writer.WriteHeader(http.StatusNotFound)
-		_, err := fmt.Fprint(writer, "<h1>请求页面未找到 :(</h1><p>如有疑虑，请联系我们。</p>")
-		if err != nil {
-			return
-		}
+	_, err := fmt.Fprint(writer, "<h1>Hello, 欢迎来到 go blog!</h1>")
+	if err != nil {
+		return
 	}
 }
 
-//aboutHandle
-func aboutHandle(writer http.ResponseWriter, request *http.Request) {
+func aboutHandler(writer http.ResponseWriter, request *http.Request) {
 	writer.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if request.URL.Path == "/about" {
-		_, err := fmt.Fprint(writer, "此博客是用以记录编程笔记，如您有反馈或建议，请联系 "+
-			"<a href=\"mailto:lustormstout@gmail.com\">lustormstout@gmail.com</a>")
-		if err != nil {
-			return
-		}
+	_, err := fmt.Fprint(writer, "此博客是用以记录编程笔记，如您有反馈或建议，请联系 "+
+		"<a href=\"mailto:lustormstout@gmail.com\">lustormstout@gmail.com</a>")
+	if err != nil {
+		return
+	}
+}
+
+func notFoundHandler(writer http.ResponseWriter, request *http.Request) {
+	writer.Header().Set("Content-Type", "text/html; charset=utf-8")
+	writer.WriteHeader(http.StatusNotFound)
+	_, err := fmt.Fprint(writer, "<h1>请求页面未找到 :(</h1><p>如有疑虑，请联系我们。</p>")
+	if err != nil {
+		return
+	}
+}
+
+func articleShowHandler(writer http.ResponseWriter, request *http.Request) {
+	vars := mux.Vars(request)
+	id := vars["id"]
+	_, err := fmt.Fprint(writer, "文章 ID："+id)
+	if err != nil {
+		return
+	}
+}
+
+func articleIndexHandler(writer http.ResponseWriter, request *http.Request) {
+	_, err := fmt.Fprint(writer, "访问文章列表")
+	if err != nil {
+		return
+	}
+}
+
+func articleStoreHandler(writer http.ResponseWriter, request *http.Request) {
+	_, err := fmt.Fprint(writer, "创建新的文章")
+	if err != nil {
+		return
 	}
 }
 
 func main() {
-	router := http.NewServeMux()
-	router.HandleFunc("/", defaultHandle)
-	router.HandleFunc("/about", aboutHandle)
+	router := mux.NewRouter()
 
-	// 文章详情
-	router.HandleFunc("/articles", func(writer http.ResponseWriter, request *http.Request) {
-		switch request.Method {
-		case "GET":
-			_, err := fmt.Fprint(writer, "访问文章列表")
-			if err != nil {
-				return
-			}
-		case "POST":
-			_, err := fmt.Fprint(writer, "创建新的文章")
-			if err != nil {
-				return
-			}
-		}
-	})
+	router.HandleFunc("/", homeHandler).Methods("GET").Name("home")
+	router.HandleFunc("/about", aboutHandler).Methods("GET").Name("about")
+	router.HandleFunc("/articles/{id:[0-9]+}", articleShowHandler).Methods("GET").Name("articles.show")
+	router.HandleFunc("/articles", articleIndexHandler).Methods("GET").Name("articles.index")
+	router.HandleFunc("/articles", articleStoreHandler).Methods("POST").Name("article.store")
+
+	// 自定义 404 页面
+	router.NotFoundHandler = http.HandlerFunc(notFoundHandler)
+
+	// 通过命名路由获取 URL 示例
+	homeURL, _ := router.Get("home").URL()
+	fmt.Println("homeURL:", homeURL)
+	articleURL, _ := router.Get("articles.show").URL("id", "23")
+	fmt.Println("articleURL:", articleURL)
 
 	err := http.ListenAndServe(":3000", router)
 	if err != nil {
