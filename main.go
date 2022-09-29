@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"net/http"
+	"strings"
 )
 
 func homeHandler(writer http.ResponseWriter, request *http.Request) {
@@ -61,6 +62,17 @@ func forceHTMLMiddleware(next http.Handler) http.Handler {
 	})
 }
 
+func removeTrailingSlash(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		// 1.除首页以外，移除所有请求路径后面的斜杠
+		if request.URL.Path != "/" {
+			request.URL.Path = strings.TrimSuffix(request.URL.Path, "/")
+		}
+		// 2.将请求传递下去
+		next.ServeHTTP(writer, request)
+	})
+}
+
 func main() {
 	router := mux.NewRouter()
 
@@ -82,7 +94,7 @@ func main() {
 	articleURL, _ := router.Get("articles.show").URL("id", "23")
 	fmt.Println("articleURL:", articleURL)
 
-	err := http.ListenAndServe(":3000", router)
+	err := http.ListenAndServe(":3000", removeTrailingSlash(router))
 	if err != nil {
 		return
 	}
