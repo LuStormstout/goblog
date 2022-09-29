@@ -3,11 +3,21 @@ package main
 import (
 	"fmt"
 	"github.com/gorilla/mux"
+	"html/template"
 	"net/http"
+	"net/url"
 	"strings"
+	"unicode/utf8"
 )
 
 var router = mux.NewRouter()
+
+// ArticleFormData 创建文章的表单数据
+type ArticleFormData struct {
+	Title, Body string
+	URL         *url.URL
+	Errors      map[string]string
+}
 
 func homeHandler(writer http.ResponseWriter, request *http.Request) {
 	_, err := fmt.Fprint(writer, "<h1>Hello, 欢迎来到 go blog!</h1>")
@@ -49,21 +59,78 @@ func articleIndexHandler(writer http.ResponseWriter, request *http.Request) {
 }
 
 func articleStoreHandler(writer http.ResponseWriter, request *http.Request) {
-	if err := request.ParseForm(); err != nil {
-		// 解析错误，这里应该有错误处理
-		fmt.Fprint(writer, "请提供正确的数据！")
-		return
+	title := request.PostFormValue("title")
+	body := request.PostFormValue("body")
+
+	errors := make(map[string]string)
+
+	// 验证标题
+	if title == "" {
+		errors["title"] = "标题不能为空"
+	} else if utf8.RuneCountInString(title) < 3 || utf8.RuneCountInString(title) > 40 {
+		errors["title"] = "标题长度需介于 3 - 40"
 	}
 
-	title := request.PostForm.Get("title")
+	// 验证内容
+	if body == "" {
+		errors["body"] = "内容不能为空"
+	} else if utf8.RuneCountInString(body) < 10 {
+		errors["body"] = "内容长度需要大于或等于 10 个字符"
+	}
 
-	fmt.Fprintf(writer, "POST PostForm: %v <br>", request.PostForm)
-	fmt.Fprintf(writer, "POST Form: %v <br>", request.Form)
-	fmt.Fprintf(writer, "title 的值为：%v", title)
+	// 检查是否有错误
+	if len(errors) == 0 {
+		fmt.Fprint(writer, "通过验证！<br>")
+		fmt.Fprintf(writer, "title 的值为：%v <br>", title)
+		fmt.Fprintf(writer, "title 的长度为：%v <br>", utf8.RuneCountInString(title))
+		fmt.Fprintf(writer, "body 的值为：%v <br>", body)
+		fmt.Fprintf(writer, "body 的长度为：%v <br>", utf8.RuneCountInString(body))
+	} else {
+		html := `
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>创建文章 - 我的技术博客</title>
+	<style type="text/css">
+		.error {
+			color: red;
+		}
+	</style>
+</head>
+<body>
+	<form action="{{ .URL }}" method="post">
+		<p><input type="text" name="title" value="{{ .Title }}"></p>
+		{{ with .Errors.title }}
+		<p class="error">{{ . }}</p>
+		{{ end }}
+		<p><textarea name="body" cols="30" rows="10">{{ .Body }}</textarea></p>
+		{{ with .Errors.body }}
+		<p class="error">{{ . }}</p>
+		{{ end }}
+		<p><button type="submit">提交</button></p>
+	</form>
+</body>
+</html>
+`
+		storeURL, _ := router.Get("articles.store").URL()
+		data := ArticleFormData{
+			Title:  title,
+			Body:   body,
+			URL:    storeURL,
+			Errors: errors,
+		}
+		tmpl, err := template.New("create-form").Parse(html)
+		if err != nil {
+			panic(err)
+		}
 
-	fmt.Fprintf(writer, "request.Form 中的 title 值为：%v <br>", request.FormValue("title"))
-	fmt.Fprintf(writer, "request.Form 中的 test 值为：%v <br>", request.FormValue("test"))
-	fmt.Fprintf(writer, "request.PostForm 中的 test 值为：%v <br>", request.PostFormValue("test"))
+		err = tmpl.Execute(writer, data)
+		if err != nil {
+			panic(err)
+		}
+	}
 }
 
 func forceHTMLMiddleware(next http.Handler) http.Handler {
