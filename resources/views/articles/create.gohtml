@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>创建文章 - 我的技术博客</title>
+    <style>
+        .error {
+            color: red;
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="form">
+    <form action="{{ .URL }}" method="post">
+        <div class="form-group">
+            <label for="title">标题:</label>
+            <br>
+            <input type="text" name="title" id="title" placeholder="长度限制 3 - 40 个字符">
+            {{ with .Errors.title }}
+                <p class="error">{{ . }}</p>
+            {{ end }}
+        </div>
+        <div class="form-group">
+            <label for="body">内容:</label>
+            <br>
+            <textarea name="body" id="body" cols="30" rows="10" placeholder="请至少输入 10 个字符">{{ .Body }}</textarea>
+            {{ with .Errors.body }}
+                <p class="error">{{ . }}</p>
+            {{ end }}
+        </div>
+        <div class="form-group">
+            <button type="submit">提交</button>
+        </div>
+    </form>
+</div>
+</body>
+</html>
