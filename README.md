@@ -20,20 +20,6 @@ Run the following command in the root directory of the project to start the serv
 go run main.go
 ```
 
-If you are on macOS and wish to use [air](https://github.com/cosmtrek/air) for automatic reloading of your application, you need to first install air. You can install air with the following command:
-
-```bash
-brew install cosmtrek/air/air
-```
-
-After installation, you can run the following command in the root directory of the project to start the server:
-
-```bash
-air
-```
-
-Air will monitor your code files and automatically rebuild and restart your application when files change.
-
 Then, you can visit `http://localhost:3000` in your browser to view your blog.
 
 ## Contribution
