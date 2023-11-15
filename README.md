@@ -1,43 +1,45 @@
+*Read this in other languages: [中文](README_zh.md).*
+
 # GoBlog
 
-GoBlog 是一个使用 Go 语言编写的简单博客项目，用于练习和学习 Go 语言。
+GoBlog is a simple blog project written in Go, used for practice and learning Go language.
 
-## 安装
+## Installation
 
-确保你的计算机上已经安装了 Go。然后，你可以通过以下命令来获取这个项目：
+Ensure that Go is installed on your computer. Then, you can obtain this project with the following command:
 
 ```bash
 go get -u github.com/LuStormstout/goblog
 ```
 
-## 使用
+## Usage
 
-在项目的根目录下运行以下命令来启动服务器：
+Run the following command in the root directory of the project to start the server:
 
 ```bash
 go run main.go
 ```
 
-如果你在 macOS 上，并且希望使用 [air](https://github.com/cosmtrek/air) 来自动重载你的应用，你需要首先安装 air。你可以通过以下命令来安装 air：
+If you are on macOS and wish to use [air](https://github.com/cosmtrek/air) for automatic reloading of your application, you need to first install air. You can install air with the following command:
 
 ```bash
 brew install cosmtrek/air/air
 ```
 
-安装完成后，你可以在项目的根目录下运行以下命令来启动服务器：
+After installation, you can run the following command in the root directory of the project to start the server:
 
 ```bash
 air
 ```
 
-air 会监视你的代码文件，并在文件发生变化时自动重建并重启你的应用。
+Air will monitor your code files and automatically rebuild and restart your application when files change.
 
-然后，你可以在浏览器中访问 `http://localhost:3000` 来查看你的博客。
+Then, you can visit `http://localhost:3000` in your browser to view your blog.
 
-## 贡献
+## Contribution
 
-欢迎任何形式的贡献。如果你发现了任何问题或者有任何建议，欢迎提交 issue 或者 pull request。
+Any form of contribution is welcome. If you find any problems or have any suggestions, feel free to submit an issue or pull request.
 
-## 许可证
+## License
 
-这个项目遵循 MIT 许可证。详情请参阅 [LICENSE](LICENSE) 文件。
+This project follows the MIT license. For details, please refer to the [LICENSE](LICENSE) file.
