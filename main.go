@@ -2,8 +2,10 @@ package main
 
 import (
 	"fmt"
+	"html/template"
 	"net/http"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/gorilla/mux"
 )
@@ -35,17 +37,66 @@ func articlesIndexHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func articlesStoreHandler(w http.ResponseWriter, r *http.Request) {
-	if err := r.ParseForm(); err != nil {
-		// 解析错误，这里应该有错误处理
-		fmt.Fprint(w, "请提供正确的数据！")
-		return
+	title := r.PostFormValue("title")
+	body := r.PostFormValue("body")
+	errors := make(map[string]string)
+
+	// 验证标题
+	if title == "" {
+		errors["title"] = "标题不能为空"
+	} else if utf8.RuneCountInString(title) < 3 || utf8.RuneCountInString(title) > 40 {
+		errors["title"] = "标题长度需介于 3 - 40"
 	}
 
-	title := r.PostForm.Get("title")
+	// 验证内容
+	if body == "" {
+		errors["body"] = "内容不能为空"
+	} else if utf8.RuneCountInString(body) < 10 {
+		errors["body"] = "内容长度不能小于 10"
+	}
 
-	fmt.Fprintf(w, "POST PostForm: %v <br>", r.PostForm)
-	fmt.Fprintf(w, "POST Form: %v <br>", r.Form)
-	fmt.Fprintf(w, "title 的值为： %v", title)
+	if len(errors) == 0 {
+		fmt.Fprintf(w, "title: %s, body: %s", title, body)
+	} else {
+		html := `
+		<!DOCTYPE html>
+		<html lang="en">
+		<head>
+			<title>创建文章 —— 我的技术博客</title>
+			<style type="text/css">.error {color: red;}</style>
+		</head>
+		<body>
+			<form action="{{ .URL }}" method="post">
+				<p><input type="text" name="title" value="{{ .Title }}"></p>
+				{{ with .Error.title}}
+				<p class="error">{{ . }}</p>
+				{{ end }}
+				<p><textarea name="body" cols="30" rows="10">{{ .Body }}</textarea></p>
+				{{ with .Error.body }}
+				<p class="error">{{ . }}</p>
+				{{ end }}
+				<p><button type="submit">提交</button></p>
+			</form>
+		</body>
+		</html>
+		`
+		storeURL, _ := router.Get("articles.store").URL()
+		data := map[string]interface{}{
+			"URL":   storeURL,
+			"Title": title,
+			"Body":  body,
+			"Error": errors,
+		}
+		tmpl, err := template.New("create-form").Parse(html)
+		if err != nil {
+			panic(err)
+		}
+
+		err = tmpl.Execute(w, data)
+		if err != nil {
+			panic(err)
+		}
+	}
 }
 
 func forceHTMLMiddleware(next http.Handler) http.Handler {
