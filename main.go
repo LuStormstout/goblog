@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 	"unicode/utf8"
 
 	"github.com/go-sql-driver/mysql"
@@ -14,6 +15,7 @@ import (
 )
 
 var router = mux.NewRouter()
+var db *sql.DB
 
 // ArticlesFormData 用于存储表单数据
 type ArticlesFormData struct {
@@ -23,8 +25,37 @@ type ArticlesFormData struct {
 	Error map[string]string
 }
 
-func init() {
-	sql.Register("mysql", &mysql.MySQLDriver{})
+func initDB() {
+	var err error
+	config := mysql.Config{
+		User:                 "root",
+		Passwd:               "cptbtptp",
+		Addr:                 "127.0.0.1:3306",
+		Net:                  "tcp",
+		DBName:               "goblog",
+		AllowNativePasswords: true,
+	}
+
+	// 准备数据库连接池
+	db, err := sql.Open("mysql", config.FormatDSN())
+	checkErr(err)
+
+	// 设置最大连接数
+	db.SetMaxOpenConns(25)
+	// 设置最大空闲连接数
+	db.SetMaxIdleConns(25)
+	// 设置每个连接的过期时间
+	db.SetConnMaxLifetime(5 * time.Minute)
+
+	// 尝试连接，失败会报错
+	err = db.Ping()
+	checkErr(err)
+}
+
+func checkErr(err error) {
+	if err != nil {
+		panic(err)
+	}
 }
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
@@ -133,6 +164,8 @@ func articleCreateHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	initDB()
+
 	router.HandleFunc("/", homeHandler).Methods("GET").Name("home")
 	router.HandleFunc("/about", aboutHandler).Methods("GET").Name("about")
 
