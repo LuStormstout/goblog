@@ -79,6 +79,15 @@ type Article struct {
 	ID          int64
 }
 
+// Link 方法用来生成文章链接
+func (a Article) Link() string {
+	showURL, err := router.Get("articles.show").URL("id", strconv.FormatInt(a.ID, 10))
+	if err != nil {
+		panic(err)
+	}
+	return showURL.String()
+}
+
 func articlesShowHandler(w http.ResponseWriter, r *http.Request) {
 	// 1. 获取 URL 参数
 	id := getRouteVariable("id", r)
@@ -107,7 +116,33 @@ func articlesShowHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func articlesIndexHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "This is articles list")
+	// 1. 查询文章数据
+	rows, err := db.Query("SELECT * FROM articles")
+	checkErr(err)
+	defer rows.Close()
+
+	var articles []Article
+	// 2. 遍历查询结果
+	for rows.Next() {
+		article := Article{}
+		// 2.1 将每一行的结果都赋值到一个 Article 对象中
+		err := rows.Scan(&article.ID, &article.Title, &article.Body)
+		checkErr(err)
+		// 2.2 将 Article 对象追加到 articles 的这个数组中
+		articles = append(articles, article)
+	}
+
+	// 3. 检测遍历时是否发生错误
+	err = rows.Err()
+	checkErr(err)
+
+	// 4. 加载模板
+	template, err := template.ParseFiles("resources/views/articles/index.gohtml")
+	checkErr(err)
+
+	// 5. 渲染模板，将所有文章的数据传输进去
+	err = template.Execute(w, articles)
+	checkErr(err)
 }
 
 func validateArticleFormData(title, body string) map[string]string {
