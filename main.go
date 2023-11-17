@@ -3,10 +3,10 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"goblog/bootstrap"
 	"goblog/pkg/database"
 	"goblog/pkg/logger"
 	"goblog/pkg/route"
-	"goblog/pkg/types"
 	"html/template"
 	"net/http"
 	"net/url"
@@ -41,68 +41,6 @@ func (a Article) Link() string {
 		panic(err)
 	}
 	return showURL.String()
-}
-
-func articlesShowHandler(w http.ResponseWriter, r *http.Request) {
-	// 1. 获取 URL 参数
-	id := route.GetRouteVariable("id", r)
-
-	// 2. 读取对应的文章数据
-	article, err := getArticleByID(id)
-
-	// 3. 如果出现错误
-	if err != nil {
-		if err == sql.ErrNoRows {
-			// 3.1 数据未找到，执行 404 处理
-			w.WriteHeader(http.StatusNotFound)
-			fmt.Fprint(w, "404 文章未找到")
-		} else {
-			// 3.2 数据库错误，执行 500 处理
-			logger.LogError(err)
-			w.WriteHeader(http.StatusInternalServerError)
-			fmt.Fprint(w, "500 服务器内部错误")
-		}
-	} else {
-		// 4. 读取成功，显示文章
-		template, err := template.New("show.gohtml").
-			Funcs(template.FuncMap{
-				"RouteName2URL": route.RouteName2URL,
-				"Int64ToString": types.Int64ToString,
-			}).
-			ParseFiles("resources/views/articles/show.gohtml")
-		logger.LogError(err)
-		template.Execute(w, article)
-	}
-}
-
-func articlesIndexHandler(w http.ResponseWriter, r *http.Request) {
-	// 1. 查询文章数据
-	rows, err := db.Query("SELECT * FROM articles")
-	logger.LogError(err)
-	defer rows.Close()
-
-	var articles []Article
-	// 2. 遍历查询结果
-	for rows.Next() {
-		article := Article{}
-		// 2.1 将每一行的结果都赋值到一个 Article 对象中
-		err := rows.Scan(&article.ID, &article.Title, &article.Body)
-		logger.LogError(err)
-		// 2.2 将 Article 对象追加到 articles 的这个数组中
-		articles = append(articles, article)
-	}
-
-	// 3. 检测遍历时是否发生错误
-	err = rows.Err()
-	logger.LogError(err)
-
-	// 4. 加载模板
-	template, err := template.ParseFiles("resources/views/articles/index.gohtml")
-	logger.LogError(err)
-
-	// 5. 渲染模板，将所有文章的数据传输进去
-	err = template.Execute(w, articles)
-	logger.LogError(err)
 }
 
 func validateArticleFormData(title, body string) map[string]string {
@@ -402,14 +340,11 @@ func articlesDeleteHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	route.Initialize()
-	router = route.Router
+	router = bootstrap.SetupRoute()
 
 	database.Initialize()
 	db = database.DB
 
-	router.HandleFunc("/articles/{id:[0-9]+}", articlesShowHandler).Methods("GET").Name("articles.show")
-	router.HandleFunc("/articles", articlesIndexHandler).Methods("GET").Name("articles.index")
 	router.HandleFunc("/articles", articlesStoreHandler).Methods("POST").Name("articles.store")
 	router.HandleFunc("/articles/create", articleCreateHandler).Methods("GET").Name("articles.create")
 	router.HandleFunc("/articles/{id:[0-9]+}/edit", articlesEditHandler).Methods("GET").Name("articles.edit")
