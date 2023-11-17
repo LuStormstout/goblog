@@ -28,8 +28,8 @@ type ArticlesFormData struct {
 func initDB() {
 	var err error
 	config := mysql.Config{
-		User:                 "root",
-		Passwd:               "cptbtptp",
+		User:                 "test",
+		Passwd:               "123456",
 		Addr:                 "127.0.0.1:3306",
 		Net:                  "tcp",
 		DBName:               "goblog",
