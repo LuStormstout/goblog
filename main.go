@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"net/url"
 	"strings"
 	"unicode/utf8"
 
@@ -11,6 +12,14 @@ import (
 )
 
 var router = mux.NewRouter()
+
+// ArticlesFormData 用于存储表单数据
+type ArticlesFormData struct {
+	URL   *url.URL
+	Title string
+	Body  string
+	Error map[string]string
+}
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "<h1>Hello,欢迎来到 GoBlog !</h1>")
@@ -58,28 +67,6 @@ func articlesStoreHandler(w http.ResponseWriter, r *http.Request) {
 	if len(errors) == 0 {
 		fmt.Fprintf(w, "title: %s, body: %s", title, body)
 	} else {
-		html := `
-		<!DOCTYPE html>
-		<html lang="en">
-		<head>
-			<title>创建文章 —— 我的技术博客</title>
-			<style type="text/css">.error {color: red;}</style>
-		</head>
-		<body>
-			<form action="{{ .URL }}" method="post">
-				<p><input type="text" name="title" value="{{ .Title }}"></p>
-				{{ with .Error.title}}
-				<p class="error">{{ . }}</p>
-				{{ end }}
-				<p><textarea name="body" cols="30" rows="10">{{ .Body }}</textarea></p>
-				{{ with .Error.body }}
-				<p class="error">{{ . }}</p>
-				{{ end }}
-				<p><button type="submit">提交</button></p>
-			</form>
-		</body>
-		</html>
-		`
 		storeURL, _ := router.Get("articles.store").URL()
 		data := map[string]interface{}{
 			"URL":   storeURL,
@@ -87,12 +74,12 @@ func articlesStoreHandler(w http.ResponseWriter, r *http.Request) {
 			"Body":  body,
 			"Error": errors,
 		}
-		tmpl, err := template.New("create-form").Parse(html)
+		template, err := template.ParseFiles("resources/views/articles/create.gohtml")
 		if err != nil {
 			panic(err)
 		}
 
-		err = tmpl.Execute(w, data)
+		err = template.Execute(w, data)
 		if err != nil {
 			panic(err)
 		}
@@ -121,24 +108,22 @@ func removeTrailingSlash(next http.Handler) http.Handler {
 }
 
 func articleCreateHandler(w http.ResponseWriter, r *http.Request) {
-	html := `
-	<!DOCTYPE html>
-	<html lang="en">
-	<head>
-		<title>创建文章 —— 我的技术博客</title>
-	</head>
-	<body>
-		<form action="%s" method="post">
-			<p><input type="text" name="title"></p>
-			<p><textarea name="body" cols="30" rows="10"></textarea></p>
-			<p><button type="submit">提交</button></p>
-		</form>
-	</body>
-	</html>
-	`
-
 	storeURL, _ := router.Get("articles.store").URL()
-	fmt.Fprintf(w, html, storeURL)
+	data := ArticlesFormData{
+		URL:   storeURL,
+		Body:  "",
+		Title: "",
+		Error: nil,
+	}
+	template, err := template.ParseFiles("resources/views/articles/create.gohtml")
+	if err != nil {
+		panic(err)
+	}
+
+	err = template.Execute(w, data)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func main() {
