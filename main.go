@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -8,6 +9,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
+	"github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 )
 
@@ -19,6 +21,10 @@ type ArticlesFormData struct {
 	Title string
 	Body  string
 	Error map[string]string
+}
+
+func init() {
+	sql.Register("mysql", &mysql.MySQLDriver{})
 }
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
