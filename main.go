@@ -340,10 +340,11 @@ func articlesDeleteHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	router = bootstrap.SetupRoute()
-
 	database.Initialize()
 	db = database.DB
+
+	bootstrap.SetupDB()
+	router = bootstrap.SetupRoute()
 
 	router.HandleFunc("/articles", articlesStoreHandler).Methods("POST").Name("articles.store")
 	router.HandleFunc("/articles/create", articleCreateHandler).Methods("GET").Name("articles.create")
