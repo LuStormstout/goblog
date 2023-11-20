@@ -8,12 +8,19 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// RouteName2URL 根据路由名称获取 URL
-func RouteName2URL(routeName string, pairs ...string) string {
-	var route *mux.Router
+var route *mux.Router
+
+// SetRoute 设置路由实例, 供 RouteName2URL 等函数调用
+func SetRoute(r *mux.Router) {
+	route = r
+}
+
+// Name2URL 根据路由名称获取 URL
+func Name2URL(routeName string, pairs ...string) string {
 	url, err := route.Get(routeName).URL(pairs...)
 	if err != nil {
 		logger.LogError(err)
+		return ""
 	}
 
 	return url.String()

@@ -1,6 +1,14 @@
 package controllers
 
 import (
+	"errors"
+	"fmt"
+	"goblog/app/models/article"
+	"goblog/pkg/logger"
+	"goblog/pkg/route"
+	"goblog/pkg/types"
+	"gorm.io/gorm"
+	"html/template"
 	"net/http"
 	"unicode/utf8"
 )
@@ -42,35 +50,44 @@ func (*ArticlesController) Index(w http.ResponseWriter, r *http.Request) {
 
 // Show 文章详情页
 func (*ArticlesController) Show(w http.ResponseWriter, r *http.Request) {
-	// // 1. 获取 URL 参数
-	// id := route.GetRouteVariable("id", r)
+	// 1. 获取 URL 参数
+	id := route.GetRouteVariable("id", r)
 
-	// // 2. 读取对应的文章数据
-	// article, err := getArticleByID(id)
+	// 2. 读取对应的文章数据
+	articleInfo, err := article.Get(id)
 
-	// // 3. 如果出现错误
-	// if err != nil {
-	// 	if err == sql.ErrNoRows {
-	// 		// 3.1 数据未找到，执行 404 处理
-	// 		w.WriteHeader(http.StatusNotFound)
-	// 		fmt.Fprint(w, "404 文章未找到")
-	// 	} else {
-	// 		// 3.2 数据库错误，执行 500 处理
-	// 		logger.LogError(err)
-	// 		w.WriteHeader(http.StatusInternalServerError)
-	// 		fmt.Fprint(w, "500 服务器内部错误")
-	// 	}
-	// } else {
-	// 	// 4. 读取成功，显示文章
-	// 	template, err := template.New("show.gohtml").
-	// 		Funcs(template.FuncMap{
-	// 			"RouteName2URL": route.RouteName2URL,
-	// 			"Int64ToString": types.Int64ToString,
-	// 		}).
-	// 		ParseFiles("resources/views/articles/show.gohtml")
-	// 	logger.LogError(err)
-	// 	template.Execute(w, article)
-	// }
+	// 3. 如果出现错误
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			// 3.1 数据未找到，执行 404 处理
+			w.WriteHeader(http.StatusNotFound)
+			_, err := fmt.Fprint(w, "404 文章未找到")
+			if err != nil {
+				logger.LogError(err)
+			}
+		} else {
+			// 3.2 数据库错误，执行 500 处理
+			logger.LogError(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			_, err := fmt.Fprint(w, "500 服务器内部错误")
+			if err != nil {
+				logger.LogError(err)
+			}
+		}
+	} else {
+		// 4. 读取成功，显示文章
+		tpl, err := template.New("show.gohtml").
+			Funcs(template.FuncMap{
+				"Name2URL":       route.Name2URL,
+				"Uint64ToString": types.Uint64ToString,
+			}).
+			ParseFiles("resources/views/articles/show.gohtml")
+		logger.LogError(err)
+		err = tpl.Execute(w, articleInfo)
+		if err != nil {
+			logger.LogError(err)
+		}
+	}
 }
 
 // Create 文章创建页面
