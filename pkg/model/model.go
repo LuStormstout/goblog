@@ -2,6 +2,7 @@ package model
 
 import (
 	"goblog/pkg/logger"
+
 	"gorm.io/gorm"
 
 	// GORM 的 MySQL 数据库驱动导入
