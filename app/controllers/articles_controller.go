@@ -19,33 +19,25 @@ type ArticlesController struct {
 
 // Index 文章列表页
 func (*ArticlesController) Index(w http.ResponseWriter, r *http.Request) {
-	// // 1. 查询文章数据
-	// rows, err := db.Query("SELECT * FROM articles")
-	// logger.LogError(err)
-	// defer rows.Close()
+	// 1. 获取结果集
+	articles, err := article.GetAll()
 
-	// var articles []Article
-	// // 2. 遍历查询结果
-	// for rows.Next() {
-	// 	article := Article{}
-	// 	// 2.1 将每一行的结果都赋值到一个 Article 对象中
-	// 	err := rows.Scan(&article.ID, &article.Title, &article.Body)
-	// 	logger.LogError(err)
-	// 	// 2.2 将 Article 对象追加到 articles 的这个数组中
-	// 	articles = append(articles, article)
-	// }
+	// 2. 如果出现错误
+	if err != nil {
+		// 2.1 数据库错误，跳转到 500 错误页面
+		w.WriteHeader(http.StatusInternalServerError)
+		_, err := fmt.Fprint(w, "500 服务器内部错误")
+		logger.LogError(err)
+		return
+	}
 
-	// // 3. 检测遍历时是否发生错误
-	// err = rows.Err()
-	// logger.LogError(err)
+	// 3. 加载模板
+	tpl, err := template.ParseFiles("resources/views/articles/index.gohtml")
+	logger.LogError(err)
 
-	// // 4. 加载模板
-	// template, err := template.ParseFiles("resources/views/articles/index.gohtml")
-	// logger.LogError(err)
-
-	// // 5. 渲染模板，将所有文章的数据传输进去
-	// err = template.Execute(w, articles)
-	// logger.LogError(err)
+	// 4. 渲染模板，将所有文章的数据传输进去
+	err = tpl.Execute(w, articles)
+	logger.LogError(err)
 }
 
 // Show 文章详情页
