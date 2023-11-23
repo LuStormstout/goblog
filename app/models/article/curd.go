@@ -17,6 +17,16 @@ func Get(idStr string) (Article, error) {
 	return article, nil
 }
 
+// Update 更新文章
+func (a *Article) Update() (rowsAffected int64, err error) {
+	result := model.DB.Save(&a)
+	if err = result.Error; err != nil {
+		logger.LogError(err)
+		return 0, err
+	}
+	return result.RowsAffected, nil
+}
+
 // GetAll 获取全部文章
 func GetAll() ([]Article, error) {
 	var articles []Article
