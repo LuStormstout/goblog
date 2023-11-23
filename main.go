@@ -53,73 +53,6 @@ func validateArticleFormData(title, body string) map[string]string {
 	return errors
 }
 
-func articlesStoreHandler(w http.ResponseWriter, r *http.Request) {
-	title := r.PostFormValue("title")
-	body := r.PostFormValue("body")
-
-	errors := validateArticleFormData(title, body)
-
-	if len(errors) == 0 {
-		lastInsertID, err := saveArticleToDB(title, body)
-		if lastInsertID > 0 {
-			fmt.Fprint(w, "插入成功, ID 为"+strconv.FormatInt(lastInsertID, 10))
-		} else {
-			logger.LogError(err)
-			w.WriteHeader(http.StatusInternalServerError)
-			fmt.Fprint(w, "服务器内部错误")
-		}
-	} else {
-		storeURL, _ := router.Get("articles.store").URL()
-		data := map[string]interface{}{
-			"URL":   storeURL,
-			"Title": title,
-			"Body":  body,
-			"Error": errors,
-		}
-		template, err := template.ParseFiles("resources/views/articles/create.gohtml")
-		if err != nil {
-			panic(err)
-		}
-
-		err = template.Execute(w, data)
-		if err != nil {
-			panic(err)
-		}
-	}
-}
-
-func saveArticleToDB(title, body string) (int64, error) {
-	// 变量初始化
-	var (
-		id   int64
-		err  error
-		stmt *sql.Stmt
-	)
-
-	// 1. 获取一个 prepare 声明语句
-	stmt, err = db.Prepare("INSERT INTO articles (title, body) VALUES (?, ?)")
-	// 例行的错误检测
-	if err != nil {
-		return 0, err
-	}
-
-	// 2. 在此函数运行结束后关闭此语句，防止占用 SQL 连接
-	defer stmt.Close()
-
-	// 3. 执行请求，传参进入绑定的内容中
-	rs, err := stmt.Exec(title, body)
-	if err != nil {
-		return 0, err
-	}
-
-	// 4. 插入成功后，返回插入的 ID
-	if id, err = rs.LastInsertId(); id > 0 {
-		return id, nil
-	}
-
-	return 0, err
-}
-
 func forceHTMLMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// 1. 设置标头
@@ -139,25 +72,6 @@ func removeTrailingSlash(next http.Handler) http.Handler {
 		// 将请求传递下去
 		next.ServeHTTP(w, r)
 	})
-}
-
-func articleCreateHandler(w http.ResponseWriter, r *http.Request) {
-	storeURL, _ := router.Get("articles.store").URL()
-	data := ArticlesFormData{
-		URL:    storeURL,
-		Body:   "",
-		Title:  "",
-		Errors: nil,
-	}
-	template, err := template.ParseFiles("resources/views/articles/create.gohtml")
-	if err != nil {
-		panic(err)
-	}
-
-	err = template.Execute(w, data)
-	if err != nil {
-		panic(err)
-	}
 }
 
 func getArticleByID(id string) (Article, error) {
@@ -337,7 +251,6 @@ func main() {
 	bootstrap.SetupDB()
 	router = bootstrap.SetupRoute()
 
-	router.HandleFunc("/articles/create", articleCreateHandler).Methods("GET").Name("articles.create")
 	router.HandleFunc("/articles/{id:[0-9]+}/edit", articlesEditHandler).Methods("GET").Name("articles.edit")
 	router.HandleFunc("/articles/{id:[0-9]+}", articlesUpdateHandler).Methods("POST").Name("articles.update")
 	router.HandleFunc("/articles/{id:[0-9]+}/delete", articlesDeleteHandler).Methods("POST").Name("articles.delete")

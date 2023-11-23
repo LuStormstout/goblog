@@ -10,6 +10,7 @@ import (
 	"gorm.io/gorm"
 	"html/template"
 	"net/http"
+	"strconv"
 	"unicode/utf8"
 )
 
@@ -82,14 +83,75 @@ func (*ArticlesController) Show(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// Create 文章创建页面
-func (*ArticlesController) Create(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("文章创建页面"))
+// ArticlesFormData 用于存储表单数据
+type ArticlesFormData struct {
+	Title, Body, URL string
+	Errors           map[string]string
 }
 
-// Store 文章创建页面
+// Create 文章创建页面
+func (*ArticlesController) Create(w http.ResponseWriter, r *http.Request) {
+	storeURL := route.Name2URL("articles.store")
+	data := ArticlesFormData{
+		URL:    storeURL,
+		Body:   "",
+		Title:  "",
+		Errors: nil,
+	}
+	tpl, err := template.ParseFiles("resources/views/articles/create.gohtml")
+	if err != nil {
+		panic(err)
+	}
+
+	err = tpl.Execute(w, data)
+	if err != nil {
+		panic(err)
+	}
+}
+
+// Store 文章添加到数据库中
 func (*ArticlesController) Store(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("文章创建页面"))
+	title := r.PostFormValue("title")
+	body := r.PostFormValue("body")
+
+	validateFormDataErrors := validateArticleFormData(title, body)
+
+	if len(validateFormDataErrors) == 0 {
+		_article := article.Article{
+			Title: title,
+			Body:  body,
+		}
+		err := _article.Create()
+		if err == nil {
+			_, err := fmt.Fprint(w, "插入成功, ID 为"+strconv.FormatUint(_article.ID, 10))
+			if err != nil {
+				logger.LogError(err)
+			}
+		} else {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, err := fmt.Fprint(w, "服务器内部错误")
+			if err != nil {
+				logger.LogError(err)
+			}
+		}
+	} else {
+		storeURL := route.Name2URL("articles.store")
+		data := map[string]interface{}{
+			"URL":   storeURL,
+			"Title": title,
+			"Body":  body,
+			"Error": validateFormDataErrors,
+		}
+		tpl, err := template.ParseFiles("resources/views/articles/create.gohtml")
+		if err != nil {
+			logger.LogError(err)
+		}
+
+		err = tpl.Execute(w, data)
+		if err != nil {
+			logger.LogError(err)
+		}
+	}
 }
 
 // Edit 文章更新页面
@@ -107,32 +169,21 @@ func (*ArticlesController) Delete(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("文章删除页面"))
 }
 
-// ArticlesFormData 用于存储表单数据
-type ArticlesFormData struct {
-	Title  string
-	Body   string
-	Errors map[string]string
-}
-
-// Validate 表单验证
-func (a ArticlesFormData) Validate() bool {
-	a.Errors = make(map[string]string)
-
-	if a.Title == "" {
-		a.Errors["Title"] = "标题不能为空"
+func validateArticleFormData(title, body string) map[string]string {
+	validateFromDataErrors := make(map[string]string)
+	// 验证标题
+	if title == "" {
+		validateFromDataErrors["title"] = "标题不能为空"
+	} else if utf8.RuneCountInString(title) < 3 || utf8.RuneCountInString(title) > 40 {
+		validateFromDataErrors["title"] = "标题长度需介于 3-40"
 	}
 
-	if utf8.RuneCountInString(a.Title) < 3 || utf8.RuneCountInString(a.Title) > 40 {
-		a.Errors["Title"] = "标题长度需介于 3-40"
+	// 验证内容
+	if body == "" {
+		validateFromDataErrors["body"] = "内容不能为空"
+	} else if utf8.RuneCountInString(body) < 10 {
+		validateFromDataErrors["body"] = "内容长度需大于或等于 10 个字节"
 	}
 
-	if a.Body == "" {
-		a.Errors["Body"] = "内容不能为空"
-	}
-
-	if utf8.RuneCountInString(a.Body) < 10 {
-		a.Errors["Body"] = "内容长度需大于或等于 10 个字节"
-	}
-
-	return len(a.Errors) == 0
+	return validateFromDataErrors
 }
