@@ -34,15 +34,6 @@ type Article struct {
 	ID          int64
 }
 
-// Link 方法用来生成文章链接
-func (a Article) Link() string {
-	showURL, err := router.Get("articles.show").URL("id", strconv.FormatInt(a.ID, 10))
-	if err != nil {
-		panic(err)
-	}
-	return showURL.String()
-}
-
 func validateArticleFormData(title, body string) map[string]string {
 	errors := make(map[string]string)
 	// 验证标题
