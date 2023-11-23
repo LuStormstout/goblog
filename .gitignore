@@ -23,3 +23,6 @@
 
 # Air files
 tmp/
+
+# Go build files
+goblog
