@@ -8,6 +8,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// go test ./tests -v -count=1
+// TestAllPages 测试所有页面
 func TestAllPages(t *testing.T) {
 
 	baseURL := "http://localhost:3000"
