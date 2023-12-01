@@ -2,7 +2,6 @@ package routes
 
 import (
 	"goblog/app/controllers"
-	"goblog/app/http/middlewares"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -25,6 +24,10 @@ func RegisterWebRoutes(router *mux.Router) {
 	router.HandleFunc("/articles/{id:[0-9]+}", articlesController.Update).Methods("POST").Name("articles.update")
 	router.HandleFunc("/articles/{id:[0-9]+}/delete", articlesController.Delete).Methods("POST").Name("articles.delete")
 
+	// 静态资源
+	router.PathPrefix("/css/").Handler(http.FileServer(http.Dir("./public")))
+	router.PathPrefix("/js/").Handler(http.FileServer(http.Dir("./public")))
+
 	// 中间件：强制内容类型为 HTML
-	router.Use(middlewares.ForceHTML)
+	//router.Use(middlewares.ForceHTML)
 }
