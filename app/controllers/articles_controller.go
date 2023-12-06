@@ -13,7 +13,8 @@ import (
 	"unicode/utf8"
 )
 
-// ArticlesController 文章相关页面
+// ArticlesController is a struct that groups all the methods related to articles.
+// These methods handle HTTP requests related to articles, such as creating, reading, updating, and deleting articles.
 type ArticlesController struct {
 }
 
@@ -22,12 +23,12 @@ func (*ArticlesController) Index(
 	w http.ResponseWriter,
 	_ *http.Request,
 ) {
-	// 1. 获取结果集
+	// 获取结果集
 	articles, err := article.GetAll()
 
-	// 2. 如果出现错误
+	// 如果出现错误
 	if err != nil {
-		// 2.1 数据库错误，跳转到 500 错误页面
+		// 数据库错误，跳转到 500 错误页面
 		w.WriteHeader(http.StatusInternalServerError)
 		_, err := fmt.Fprint(w, "500 服务器内部错误")
 		logger.LogError(err)
@@ -40,23 +41,23 @@ func (*ArticlesController) Index(
 
 // Show 文章详情页
 func (*ArticlesController) Show(w http.ResponseWriter, r *http.Request) {
-	// 1. 获取 URL 参数
+	// 获取 URL 参数
 	id := route.GetRouteVariable("id", r)
 
-	// 2. 读取对应的文章数据
+	// 读取对应的文章数据
 	articleInfo, err := article.Get(id)
 
-	// 3. 如果出现错误
+	// 如果出现错误
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			// 3.1 数据未找到，执行 404 处理
+			// 数据未找到，执行 404 处理
 			w.WriteHeader(http.StatusNotFound)
 			_, err := fmt.Fprint(w, "404 文章未找到")
 			if err != nil {
 				logger.LogError(err)
 			}
 		} else {
-			// 3.2 数据库错误，执行 500 处理
+			// 数据库错误，执行 500 处理
 			logger.LogError(err)
 			w.WriteHeader(http.StatusInternalServerError)
 			_, err := fmt.Fprint(w, "500 服务器内部错误")
@@ -111,20 +112,20 @@ func (*ArticlesController) Store(w http.ResponseWriter, r *http.Request) {
 
 // Edit 文章更新页面
 func (*ArticlesController) Edit(w http.ResponseWriter, r *http.Request) {
-	// 1. 获取 URL 参数
+	// 获取 URL 参数
 	id := route.GetRouteVariable("id", r)
 
-	// 2. 读取对应的文章数据
+	// 读取对应的文章数据
 	_article, err := article.Get(id)
 
-	// 3. 如果出现错误
+	// 如果出现错误
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			// 3.1 数据未找到，执行 404 处理
+			// 数据未找到，执行 404 处理
 			w.WriteHeader(http.StatusNotFound)
 			_, _ = fmt.Fprint(w, "404 文章未找到")
 		} else {
-			// 3.2 数据库错误，执行 500 处理
+			// 数据库错误，执行 500 处理
 			logger.LogError(err)
 			w.WriteHeader(http.StatusInternalServerError)
 			_, _ = fmt.Fprint(w, "500 服务器内部错误")
@@ -142,33 +143,33 @@ func (*ArticlesController) Edit(w http.ResponseWriter, r *http.Request) {
 
 // Update 文章更新页面
 func (*ArticlesController) Update(w http.ResponseWriter, r *http.Request) {
-	// 1. 获取 URL 参数
+	// 获取 URL 参数
 	id := route.GetRouteVariable("id", r)
 
-	// 2. 读取对应的文章数据
+	// 读取对应的文章数据
 	_article, err := article.Get(id)
 
-	// 3. 如果出现错误
+	// 如果出现错误
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			// 3.1 数据未找到
+			// 数据未找到
 			w.WriteHeader(http.StatusNotFound)
 			_, _ = fmt.Fprintf(w, "404 文章未找到")
 		} else {
-			// 3.2 数据库错误
+			// 数据库错误
 			logger.LogError(err)
 			w.WriteHeader(http.StatusInternalServerError)
 			_, _ = fmt.Fprintf(w, "500 服务器内部错误")
 		}
 	} else {
-		// 4. 未出现错误
-		// 4.1 表单验证
+		// 未出现错误
+		// 表单验证
 		title := r.PostFormValue("title")
 		body := r.PostFormValue("body")
 		validateFromDataErrors := validateArticleFormData(title, body)
 
 		if len(validateFromDataErrors) == 0 {
-			// 4.2 表单验证通过，更新数据
+			// 表单验证通过，更新数据
 			_article.Title = title
 			_article.Body = body
 
@@ -180,7 +181,7 @@ func (*ArticlesController) Update(w http.ResponseWriter, r *http.Request) {
 				_, _ = fmt.Fprint(w, "500 服务器内部错误")
 			}
 
-			// √ 更新成功，跳转到文章详情页
+			// 更新成功，跳转到文章详情页
 			if rowsAffected > 0 {
 				showURL := route.Name2URL("articles.show", "id", id)
 				http.Redirect(w, r, showURL, http.StatusFound)
@@ -188,7 +189,7 @@ func (*ArticlesController) Update(w http.ResponseWriter, r *http.Request) {
 				_, _ = fmt.Fprint(w, "您没有做任何更改！")
 			}
 		} else {
-			// 4.3 表单验证不通过，显示理由
+			// 表单验证不通过，显示理由
 			view.Render(w, view.D{
 				"Title":   title,
 				"Body":    body,
@@ -201,36 +202,36 @@ func (*ArticlesController) Update(w http.ResponseWriter, r *http.Request) {
 
 // Delete 文章删除页面
 func (*ArticlesController) Delete(w http.ResponseWriter, r *http.Request) {
-	// 1. 获取 URL 参数
+	// 获取 URL 参数
 	id := route.GetRouteVariable("id", r)
 
-	// 2. 读取对应的文章数据
+	// 读取对应的文章数据
 	_article, err := article.Get(id)
 
-	// 3. 如果出现错误
+	// 如果出现错误
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			// 3.1 数据未找到
+			// 数据未找到
 			w.WriteHeader(http.StatusNotFound)
 			_, _ = fmt.Fprint(w, "404 文章未找到")
 		} else {
-			// 3.2 数据库错误
+			// 数据库错误
 			logger.LogError(err)
 			w.WriteHeader(http.StatusInternalServerError)
 			_, _ = fmt.Fprint(w, "500 服务器内部错误")
 		}
 	} else {
-		// 4. 未出现错误，执行删除操作
+		// 未出现错误，执行删除操作
 		rowsAffected, err := _article.Delete()
 
-		// 4.1 发生错误
+		// 发生错误
 		if err != nil {
 			// 应该是 SQL 报错了
 			logger.LogError(err)
 			w.WriteHeader(http.StatusInternalServerError)
 			_, _ = fmt.Fprint(w, "500 服务器内部错误")
 		} else {
-			// 4.2 未发生错误
+			// 未发生错误
 			if rowsAffected > 0 {
 				// 重定向到文章列表页
 				indexURL := route.Name2URL("articles.index")
