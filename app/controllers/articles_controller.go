@@ -79,17 +79,25 @@ func (*ArticlesController) Show(w http.ResponseWriter, r *http.Request) {
 		}
 	} else {
 		// 4. 读取成功，显示文章
-		tpl, err := template.New("show.gohtml").
-			Funcs(template.FuncMap{
-				"Name2URL":       route.Name2URL,
-				"Uint64ToString": types.Uint64ToString,
-			}).
-			ParseFiles("resources/views/articles/show.gohtml")
+		viewDir := "resources/views"
+
+		// 所有布局模板文件 Slice
+		files, err := filepath.Glob(viewDir + "/layouts/*.gohtml")
 		logger.LogError(err)
-		err = tpl.Execute(w, articleInfo)
-		if err != nil {
-			logger.LogError(err)
-		}
+
+		// 在 Slice 里新增我们的目标文件
+		newFiles := append(files, viewDir+"/articles/show.gohtml")
+
+		// 解析所有模板文件
+		tpl, err := template.New("show.gohtml").Funcs(template.FuncMap{
+			"RouteName2URL":  route.Name2URL,
+			"Uint64ToString": types.Uint64ToString,
+		}).ParseFiles(newFiles...)
+		logger.LogError(err)
+
+		// 渲染模板，将所有文章的数据传输进去
+		err = tpl.ExecuteTemplate(w, "app", articleInfo)
+		logger.LogError(err)
 	}
 }
 
