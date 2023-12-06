@@ -14,7 +14,7 @@ func TestAllPages(t *testing.T) {
 
 	baseURL := "http://localhost:3000"
 
-	// 1. 声明加初始化测试数据
+	// 声明加初始化测试数据
 	var tests = []struct {
 		method   string
 		url      string
@@ -32,14 +32,14 @@ func TestAllPages(t *testing.T) {
 		{"POST", "/articles/2/delete", 404},
 	}
 
-	// 2. 遍历所有测试
+	// 遍历所有测试
 	for _, test := range tests {
 		t.Logf("当前请求 URL: %v \n", test.url)
 		var (
 			resp *http.Response
 			err  error
 		)
-		// 2.1 请求以获取响应
+		// 请求以获取响应
 		switch {
 		case test.method == "POST":
 			data := make(map[string][]string)
@@ -47,7 +47,7 @@ func TestAllPages(t *testing.T) {
 		default:
 			resp, err = http.Get(baseURL + test.url)
 		}
-		// 2.2 断言
+		// 断言
 		assert.NoError(t, err, "请求 "+test.url+" 时报错")
 		assert.Equal(t, test.expected, resp.StatusCode, test.url+" 应返回状态码 "+strconv.Itoa(test.expected))
 	}
