@@ -18,7 +18,7 @@ type ArticlesController struct {
 }
 
 // Index 文章列表页
-func (*ArticlesController) Index(w http.ResponseWriter, r *http.Request) {
+func (*ArticlesController) Index(w http.ResponseWriter, _ *http.Request) {
 	// 1. 获取结果集
 	articles, err := article.GetAll()
 
@@ -67,16 +67,9 @@ func (*ArticlesController) Show(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// ArticlesFormData 用于存储表单数据
-type ArticlesFormData struct {
-	Title, Body string
-	Article     article.Article
-	Errors      map[string]string
-}
-
 // Create 文章创建页面
-func (*ArticlesController) Create(w http.ResponseWriter, r *http.Request) {
-	view.Render(w, ArticlesFormData{}, "articles.create", "articles._form_field")
+func (*ArticlesController) Create(w http.ResponseWriter, _ *http.Request) {
+	view.Render(w, view.D{}, "articles.create", "articles._form_field")
 }
 
 // Store 文章添加到数据库中
@@ -105,10 +98,10 @@ func (*ArticlesController) Store(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	} else {
-		view.Render(w, ArticlesFormData{
-			Title:  title,
-			Body:   body,
-			Errors: validateFormDataErrors,
+		view.Render(w, view.D{
+			"Title":  title,
+			"Body":   body,
+			"Errors": validateFormDataErrors,
 		}, "articles.create", "articles._form_field")
 	}
 }
@@ -135,11 +128,11 @@ func (*ArticlesController) Edit(w http.ResponseWriter, r *http.Request) {
 		}
 	} else {
 		// 读取成功，显示编辑文章表单
-		view.Render(w, ArticlesFormData{
-			Title:   _article.Title,
-			Body:    _article.Body,
-			Article: _article,
-			Errors:  nil,
+		view.Render(w, view.D{
+			"Title":   _article.Title,
+			"Body":    _article.Body,
+			"Article": _article,
+			"Errors":  nil,
 		}, "articles.edit", "articles._form_field")
 	}
 }
@@ -193,11 +186,11 @@ func (*ArticlesController) Update(w http.ResponseWriter, r *http.Request) {
 			}
 		} else {
 			// 4.3 表单验证不通过，显示理由
-			view.Render(w, ArticlesFormData{
-				Title:   title,
-				Body:    body,
-				Article: _article,
-				Errors:  validateFromDataErrors,
+			view.Render(w, view.D{
+				"Title":   title,
+				"Body":    body,
+				"Article": _article,
+				"Errors":  validateFromDataErrors,
 			}, "articles.edit", "articles._form_field")
 		}
 	}
