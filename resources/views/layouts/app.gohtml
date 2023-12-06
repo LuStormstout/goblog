@@ -1,9 +1,9 @@
-{{ define "app"}}
+{{- define "app" -}}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{{ template "title"}}</title>
+    <title>{{- template "title" -}}</title>
     <link rel="stylesheet" href="/css/bootstrap.min.css">
     <link rel="stylesheet" href="/css/app.css">
 </head>
@@ -13,9 +13,9 @@
     <div class="container-sm">
         <div class="row mt-5">
 
-            {{ template "sidebar" .}}
+            {{- template "sidebar" . -}}
 
-            {{ template "main" .}}
+            {{- template "main" . -}}
 
         </div>
     </div>
@@ -25,4 +25,4 @@
 </body>
 
 </html>
-{{ end }}
+{{- end -}}
