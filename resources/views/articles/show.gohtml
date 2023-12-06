@@ -1,5 +1,5 @@
 {{ define "title" }}
-    {{ .Title }}
+    Article Detail
 {{ end }}
 
 {{ define "main" }}
@@ -7,8 +7,8 @@
         <div class="blog-post bg-white p-5 rounded shadow mb-4">
             <h3 class="blog-post-title">{{ .Title }}</h3>
             <p class="blog-post-meta text-secondary">
-                发布于：<a href="" class="font-weight-bold">2023-12-06</a>
-                by <a href="" class="font-weight-bold">LuStormstout</a>
+                Published on <a href="" class="font-weight-bold">2023-12-06</a>
+                By <a href="" class="font-weight-bold">LuStormstout</a>
             </p>
 
             <hr>
@@ -16,7 +16,12 @@
             {{ .Body }}
 
             <form class="mt-4" action="{{ RouteName2URL "articles.delete" "id" .GetStringID }}" method="post">
-                <button type="submit" onclick="return confirm('删除动作不可逆，请确定是否继续删除')">删除</button>
+                <button type="submit"
+                        onclick="return confirm('The deletion action is irreversible. Do you want to proceed with the deletion?')"
+                        class="btn btn-danger btn-sm">Delete
+                </button>
+                <a href="{{ RouteName2URL "articles.edit" "id" .GetStringID }}"
+                   class="btn btn-outline-secondary btn-sm">Edit</a>
             </form>
         </div>
     </div>

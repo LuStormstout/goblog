@@ -8,7 +8,6 @@ import (
 	"goblog/pkg/route"
 	"goblog/pkg/view"
 	"gorm.io/gorm"
-	"html/template"
 	"net/http"
 	"strconv"
 	"unicode/utf8"
@@ -33,7 +32,7 @@ func (*ArticlesController) Index(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 加载模板
-	view.Render(w, "articles.index", articles)
+	view.Render(w, articles, "articles.index")
 }
 
 // Show 文章详情页
@@ -64,34 +63,20 @@ func (*ArticlesController) Show(w http.ResponseWriter, r *http.Request) {
 		}
 	} else {
 		// 读取成功，显示文章
-		view.Render(w, "articles.show", articleInfo)
+		view.Render(w, articleInfo, "articles.show")
 	}
 }
 
 // ArticlesFormData 用于存储表单数据
 type ArticlesFormData struct {
-	Title, Body, URL string
-	Errors           map[string]string
+	Title, Body string
+	Article     article.Article
+	Errors      map[string]string
 }
 
 // Create 文章创建页面
 func (*ArticlesController) Create(w http.ResponseWriter, r *http.Request) {
-	storeURL := route.Name2URL("articles.store")
-	data := ArticlesFormData{
-		URL:    storeURL,
-		Body:   "",
-		Title:  "",
-		Errors: nil,
-	}
-	tpl, err := template.ParseFiles("resources/views/articles/create.gohtml")
-	if err != nil {
-		panic(err)
-	}
-
-	err = tpl.Execute(w, data)
-	if err != nil {
-		panic(err)
-	}
+	view.Render(w, ArticlesFormData{}, "articles.create", "articles._form_field")
 }
 
 // Store 文章添加到数据库中
@@ -120,22 +105,11 @@ func (*ArticlesController) Store(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	} else {
-		storeURL := route.Name2URL("articles.store")
-		data := map[string]interface{}{
-			"URL":   storeURL,
-			"Title": title,
-			"Body":  body,
-			"Error": validateFormDataErrors,
-		}
-		tpl, err := template.ParseFiles("resources/views/articles/create.gohtml")
-		if err != nil {
-			logger.LogError(err)
-		}
-
-		err = tpl.Execute(w, data)
-		if err != nil {
-			logger.LogError(err)
-		}
+		view.Render(w, ArticlesFormData{
+			Title:  title,
+			Body:   body,
+			Errors: validateFormDataErrors,
+		}, "articles.create", "articles._form_field")
 	}
 }
 
@@ -152,34 +126,21 @@ func (*ArticlesController) Edit(w http.ResponseWriter, r *http.Request) {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			// 3.1 数据未找到，执行 404 处理
 			w.WriteHeader(http.StatusNotFound)
-			_, err := fmt.Fprint(w, "404 文章未找到")
-			if err != nil {
-				logger.LogError(err)
-			}
+			_, _ = fmt.Fprint(w, "404 文章未找到")
 		} else {
 			// 3.2 数据库错误，执行 500 处理
 			logger.LogError(err)
 			w.WriteHeader(http.StatusInternalServerError)
-			_, err := fmt.Fprint(w, "500 服务器内部错误")
-			if err != nil {
-				logger.LogError(err)
-			}
+			_, _ = fmt.Fprint(w, "500 服务器内部错误")
 		}
 	} else {
-		// 4. 读取成功，显示文章
-		updateURL := route.Name2URL("articles.update", "id", id)
-		data := ArticlesFormData{
-			URL:    updateURL,
-			Title:  _article.Title,
-			Body:   _article.Body,
-			Errors: nil,
-		}
-		tpl, err := template.ParseFiles("resources/views/articles/create.gohtml")
-		logger.LogError(err)
-		err = tpl.Execute(w, data)
-		if err != nil {
-			logger.LogError(err)
-		}
+		// 读取成功，显示编辑文章表单
+		view.Render(w, ArticlesFormData{
+			Title:   _article.Title,
+			Body:    _article.Body,
+			Article: _article,
+			Errors:  nil,
+		}, "articles.edit", "articles._form_field")
 	}
 }
 
@@ -232,18 +193,12 @@ func (*ArticlesController) Update(w http.ResponseWriter, r *http.Request) {
 			}
 		} else {
 			// 4.3 表单验证不通过，显示理由
-			updateURL := route.Name2URL("articles.update", "id", id)
-			data := ArticlesFormData{
-				Title:  title,
-				Body:   body,
-				URL:    updateURL,
-				Errors: validateFromDataErrors,
-			}
-			tpl, err := template.ParseFiles("resources/views/articles/edit.gohtml")
-			logger.LogError(err)
-
-			err = tpl.Execute(w, data)
-			logger.LogError(err)
+			view.Render(w, ArticlesFormData{
+				Title:   title,
+				Body:    body,
+				Article: _article,
+				Errors:  validateFromDataErrors,
+			}, "articles.edit", "articles._form_field")
 		}
 	}
 }
