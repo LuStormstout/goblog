@@ -1,13 +1,13 @@
-{{- define "title" -}}
+{{ define "title" }}
     Home
-{{- end -}}
+{{ end }}
 
-{{- define "main" -}}
+{{ define "main" }}
     <div class="col-md-9 blog-main">
-        {{- range $key, $article := . -}}
+        {{ range $key, $article := . }}
             <div class="blog-post bg-white p-5 rounded shadow mb-4">
                 <h3 class="blog-post-title">
-                    <a class="text-dark text-decoration-none" href="{{- $article.Link -}}">{{- $article.Title -}}</a>
+                    <a class="text-dark text-decoration-none" href="{{ $article.Link }}">{{ $article.Title }}</a>
                 </h3>
                 <p class="blog-post-meta text-secondary">
                     Published on <a href="#" class="font-weight-bold">2023-12-01</a>
@@ -16,13 +16,13 @@
 
                 <hr>
 
-                <p>{{- $article.Body -}}</p>
+                <p>{{ $article.Body }}</p>
             </div>
-        {{- end -}}
+        {{ end }}
 
         <nav class="blog-pagination mb-5">
             <a class="btn btn-outline-primary" href="#">Next Page</a>
             <a class="btn btn-outline-secondary disabled" href="#" tabindex="-1" aria-disabled="true">Previous Page</a>
         </nav>
     </div>
-{{- end -}}
+{{ end }}

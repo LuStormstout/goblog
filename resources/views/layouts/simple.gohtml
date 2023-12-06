@@ -1,8 +1,8 @@
-{{- define "simple" -}}
+{{ define "simple" }}
     <!DOCTYPE html>
     <html lang="en">
     <head>
-        <title>{{- template "title" . -}}</title>
+        <title>{{ template "title" . }}</title>
         <link href="/css/bootstrap.min.css" rel="stylesheet">
         <link href="/css/app.css" rel="stylesheet">
     </head>
@@ -11,7 +11,7 @@
         <div class="row mt-5">
 
             <div class="col-md-8 offset-md-2 blog-main">
-                {{- template "main" . -}}
+                {{ template "main" . }}
             </div>
 
         </div>
@@ -19,4 +19,4 @@
     <script src="/js/bootstrap.min.js"></script>
     </body>
     </html>
-{{- end -}}
+{{ end }}

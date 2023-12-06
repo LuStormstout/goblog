@@ -1,13 +1,13 @@
-{{- define "title" -}}
+{{ define "title" }}
     Register
-{{- end -}}
+{{ end }}
 
-{{- define "main" -}}
+{{ define "main" }}
     <div class="blog-post bg-white p-5 rounded shadow mb-4">
 
         <h3 class="mb-5 text-center">User Registration</h3>
 
-        <form action="{{- RouteName2URL "auth.do-register" -}}" method="post">
+        <form action="{{ RouteName2URL "auth.do-register" }}" method="post">
 
             <div class="form-group row mb-3">
                 <label for="name" class="col-md-4 col-form-label text-md-right">Name</label>
@@ -53,4 +53,4 @@
         <a href="/" class="text-sm text-muted"><small>Back to Homepage</small></a>
         <a href="/" class="text-sm text-muted float-right"><small>Login</small></a>
     </div>
-{{- end -}}
+{{ end }}
