@@ -32,7 +32,4 @@ func RegisterWebRoutes(router *mux.Router) {
 	// 静态资源
 	router.PathPrefix("/css/").Handler(http.FileServer(http.Dir("./public")))
 	router.PathPrefix("/js/").Handler(http.FileServer(http.Dir("./public")))
-
-	// 中间件：强制内容类型为 HTML
-	//router.Use(middlewares.ForceHTML)
 }
