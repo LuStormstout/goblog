@@ -8,10 +8,10 @@ import (
 type AuthController struct {
 }
 
-func (*AuthController) Register(w http.ResponseWriter, r *http.Request) {
+func (*AuthController) Register(w http.ResponseWriter, _ *http.Request) {
 	view.RenderSimple(w, view.D{}, "auth.register")
 }
 
-func (*AuthController) DoRegister(w http.ResponseWriter, r *http.Request) {
+func (*AuthController) DoRegister(_ http.ResponseWriter, _ *http.Request) {
 	//
 }
