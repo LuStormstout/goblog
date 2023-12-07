@@ -136,7 +136,7 @@ func (*ArticlesController) Edit(w http.ResponseWriter, r *http.Request) {
 			"Title":   _article.Title,
 			"Body":    _article.Body,
 			"Article": _article,
-			"Errors":  nil,
+			"Errors":  make(map[string]string),
 		}, "articles.edit", "articles._form_field")
 	}
 }
