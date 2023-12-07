@@ -3,6 +3,7 @@ package controllers
 import (
 	"fmt"
 	"goblog/app/models/user"
+	"goblog/app/requests"
 	"goblog/pkg/view"
 	"net/http"
 )
@@ -19,25 +20,31 @@ func (*AuthController) Register(w http.ResponseWriter, _ *http.Request) {
 
 // DoRegister handles the registration logic
 func (*AuthController) DoRegister(w http.ResponseWriter, r *http.Request) {
-	// Form validation
-	name := r.PostFormValue("name")
-	email := r.PostFormValue("email")
-	password := r.PostFormValue("password")
-
-	// If validation passes, create user and redirect to homepage
+	// Initialize a user
 	_user := user.User{
-		Name:     name,
-		Email:    email,
-		Password: password,
+		Name:            r.PostFormValue("name"),
+		Email:           r.PostFormValue("email"),
+		Password:        r.PostFormValue("password"),
+		PasswordConfirm: r.PostFormValue("password_confirm"),
 	}
-	_ = _user.Create()
 
-	if _user.ID > 0 {
-		_, _ = fmt.Fprint(w, "User created successfully. ID: "+_user.GetStringID())
+	// Validate form input
+	errs := requests.ValidateRegistrationForm(_user)
+
+	if len(errs) > 0 {
+		// If validation fails, show the error message, redirect to the registration page
+		view.RenderSimple(w, view.D{
+			"Errors": errs,
+			"User":   _user,
+		}, "auth.register")
 	} else {
-		w.WriteHeader(http.StatusInternalServerError)
-		_, _ = fmt.Fprint(w, "Failed to create user.")
+		// If validation passes, create user and redirect to home page
+		_ = _user.Create()
+		if _user.ID > 0 {
+			http.Redirect(w, r, "/", http.StatusFound)
+		} else {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = fmt.Fprint(w, "Failed to create user, please contact administrator")
+		}
 	}
-
-	// If validation does not pass, display reason and re-display form
 }
