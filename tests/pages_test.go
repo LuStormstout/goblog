@@ -8,8 +8,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// go test ./tests -v -count=1
-// TestAllPages 测试所有页面
+// 使用 `go test ./tests -v -count=1` 命令来运行测试
+// TestAllPages 函数用于测试所有页面的响应状态
 func TestAllPages(t *testing.T) {
 
 	baseURL := "http://localhost:3000"
