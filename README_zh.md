@@ -1,3 +1,5 @@
+*[English](README.md)*
+
 # GoBlog
 
 GoBlog 是一个使用 Go 语言编写的简单博客项目，用于练习和学习 Go 语言。
