@@ -2,6 +2,7 @@ package routes
 
 import (
 	"goblog/app/controllers"
+	"goblog/app/http/middlewares"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -28,8 +29,13 @@ func RegisterWebRoutes(router *mux.Router) {
 	authController := new(controllers.AuthController)
 	router.HandleFunc("/auth/register", authController.Register).Methods("GET").Name("auth.register")
 	router.HandleFunc("/auth/do-register", authController.DoRegister).Methods("POST").Name("auth.do-register")
+	router.HandleFunc("/auth/login", authController.Login).Methods("GET").Name("auth.login")
+	router.HandleFunc("/auth/do-login", authController.DoLogin).Methods("POST").Name("auth.do-login")
 
 	// 静态资源
 	router.PathPrefix("/css/").Handler(http.FileServer(http.Dir("./public")))
 	router.PathPrefix("/js/").Handler(http.FileServer(http.Dir("./public")))
+
+	// Middleware: Use the global session middleware
+	router.Use(middlewares.StartSession)
 }
