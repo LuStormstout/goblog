@@ -1,16 +1,43 @@
 package requests
 
 import (
+	"errors"
+	"fmt"
 	"github.com/thedevsaddam/govalidator"
 	"goblog/app/models/user"
+	"goblog/pkg/model"
+	"strings"
 )
+
+func init() {
+	// Add custom validator for checking the uniqueness of the name field
+	govalidator.AddCustomRule("not_exists", func(field string, rule string, message string, value interface{}) error {
+		rng := strings.Split(strings.TrimPrefix(rule, "not_exists:"), ",")
+
+		tableName := rng[0]
+		dbField := rng[1]
+		val := value.(string)
+
+		var count int64
+		model.DB.Table(tableName).Where(dbField+" = ?", val).Count(&count)
+
+		if count != 0 {
+			if message != "" {
+				return errors.New(message)
+			}
+
+			return fmt.Errorf("%v already used. Please choose another", val)
+		}
+		return nil
+	})
+}
 
 // ValidateRegistrationForm used to validate the registration form
 func ValidateRegistrationForm(data user.User) map[string][]string {
 	// Custom rules
 	rules := govalidator.MapData{
-		"name":             []string{"required", "alpha_num", "between:3,20"},
-		"email":            []string{"required", "email", "min:4", "max:30"},
+		"name":             []string{"required", "alpha_num", "between:3,20", "not_exists:users,name"},
+		"email":            []string{"required", "email", "min:4", "max:30", "not_exists:users,email"},
 		"password":         []string{"required", "min:6"},
 		"password_confirm": []string{"required"},
 	}
