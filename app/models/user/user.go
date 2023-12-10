@@ -12,3 +12,8 @@ type User struct {
 	// gorm "-": This field is ignored, it will not be created in the database, nor will it bind parameters, it is only used for validation
 	PasswordConfirm string `gorm:"-" valid:"password_confirm"`
 }
+
+// ComparePassword compares the user's password with the incoming password
+func (user *User) ComparePassword(password string) bool {
+	return user.Password == password
+}
