@@ -19,7 +19,7 @@ func User() user.User {
 	uid := getUID()
 	if len(uid) > 0 {
 		_user, err := user.Get(uid)
-		if err != nil {
+		if err == nil {
 			return _user
 		}
 	}
