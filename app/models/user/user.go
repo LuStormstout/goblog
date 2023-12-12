@@ -23,6 +23,6 @@ func (user *User) ComparePassword(_password string) bool {
 }
 
 // Link to generate user link
-func (user *User) Link() string {
+func (user User) Link() string {
 	return route.Name2URL("users.show", "id", user.GetStringID())
 }
