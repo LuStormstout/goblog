@@ -2,12 +2,13 @@ package session
 
 import (
 	"github.com/gorilla/sessions"
+	"goblog/pkg/config"
 	"goblog/pkg/logger"
 	"net/http"
 )
 
 // Store the cookie store
-var Store = sessions.NewCookieStore([]byte("AHO99RL1ApfPUQXIgUo3jPWZMpfL5y4o"))
+var Store = sessions.NewCookieStore([]byte(config.GetString("app.key")))
 
 // Session Get a session instance
 var Session *sessions.Session
@@ -23,7 +24,7 @@ func StartSession(w http.ResponseWriter, r *http.Request) {
 	var err error
 
 	// Get a session. Get() always returns a session, even if empty.
-	Session, err = Store.Get(r, "goblog-session")
+	Session, err = Store.Get(r, config.GetString("session.session_name"))
 	if err != nil {
 		panic(err)
 	}

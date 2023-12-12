@@ -26,3 +26,6 @@ tmp/
 
 # Go build files
 goblog
+
+# Environment variables
+.env

@@ -1,28 +1,25 @@
 package main
 
 import (
+	"goblog/app/http/middlewares"
 	"goblog/bootstrap"
-	"goblog/pkg/logger"
+	"goblog/config"
+	c "goblog/pkg/config"
 	"net/http"
-	"strings"
 )
 
-func removeTrailingSlash(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// 除首页以外，移除所有请求路径后面的斜杠
-		if r.URL.Path != "/" {
-			r.URL.Path = strings.TrimSuffix(r.URL.Path, "/")
-		}
-
-		// 将请求传递下去
-		next.ServeHTTP(w, r)
-	})
+func init() {
+	// 初始化配置信息
+	config.Initialize()
 }
 
 func main() {
+	// 初始化数据库
 	bootstrap.SetupDB()
+
+	// 初始化路由绑定
 	router := bootstrap.SetupRoute()
 
-	err := http.ListenAndServe(":3000", removeTrailingSlash(router))
-	logger.LogError(err)
+	// 初始化 HTTP 服务
+	_ = http.ListenAndServe(":"+c.GetString("app.port"), middlewares.RemoveTrailingSlash(router))
 }
