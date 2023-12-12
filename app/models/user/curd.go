@@ -17,9 +17,9 @@ func (user *User) Create() (err error) {
 }
 
 // Get a user by uid
-func Get(uid string) (User, error) {
+func Get(uidString string) (User, error) {
 	var user User
-	id := types.StringToUint64(uid)
+	id := types.StringToUint64(uidString)
 	if err := model.DB.First(&user, id).Error; err != nil {
 		return user, err
 	}
