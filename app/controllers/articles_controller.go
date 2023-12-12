@@ -5,6 +5,7 @@ import (
 	"goblog/app/models/article"
 	"goblog/app/policies"
 	"goblog/app/requests"
+	"goblog/pkg/auth"
 	"goblog/pkg/logger"
 	"goblog/pkg/route"
 	"goblog/pkg/view"
@@ -60,9 +61,13 @@ func (*ArticlesController) Create(w http.ResponseWriter, _ *http.Request) {
 
 // Store 文章添加到数据库中
 func (*ArticlesController) Store(w http.ResponseWriter, r *http.Request) {
+
+	// 初始化数据
+	currentUser := auth.User()
 	_article := article.Article{
-		Title: r.PostFormValue("title"),
-		Body:  r.PostFormValue("body"),
+		Title:  r.PostFormValue("title"),
+		Body:   r.PostFormValue("body"),
+		UserID: currentUser.ID,
 	}
 
 	validateFormDataErrors := requests.ValidateArticleForm(_article)
