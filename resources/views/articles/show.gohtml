@@ -6,10 +6,8 @@
     <div class="col-md-9 blog-main">
         <div class="blog-post bg-white p-5 rounded shadow mb-4">
             <h3 class="blog-post-title">{{ .Article.Title }}</h3>
-            <p class="blog-post-meta text-secondary">
-                Published on <a href="" class="font-weight-bold">2023-12-06</a>
-                By <a href="" class="font-weight-bold">LuStormstout</a>
-            </p>
+
+            {{ template "article-meta" .Article }}
 
             <hr>
 

@@ -37,7 +37,7 @@ func (*ArticlesController) Index(
 	// 加载模板
 	view.Render(w, view.D{
 		"Articles": articles,
-	}, "articles.index")
+	}, "articles.index", "articles._article_meta")
 }
 
 // Show 文章详情页
@@ -67,10 +67,13 @@ func (*ArticlesController) Show(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	} else {
+
+		fmt.Fprint(w, articleInfo.User.Link)
+
 		// 读取成功，显示文章
 		view.Render(w, view.D{
 			"Article": articleInfo,
-		}, "articles.show")
+		}, "articles.show", "articles._article_meta")
 	}
 }
 

@@ -1,0 +1,6 @@
+{{ define "article-meta" }}
+    <p class="blog-post-meta text-secondary">
+        Published on <a href="{{ .Link }}" class="font-weight-bold">{{ .CreatedAtDate }}</a>
+        By <a href="{{ .User.Link }}" class="font-weight-bold">{{ .User.Name }}</a>
+    </p>
+{{ end }}

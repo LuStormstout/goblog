@@ -20,3 +20,9 @@ type User struct {
 func (user *User) ComparePassword(_password string) bool {
 	return password.CheckHash(_password, user.Password)
 }
+
+// Link to generate user link
+func (user *User) Link() string {
+	return "123456"
+	//return route.Name2URL("users.show", "id", user.GetStringID())
+}

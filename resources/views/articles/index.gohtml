@@ -9,10 +9,8 @@
                 <h3 class="blog-post-title">
                     <a class="text-dark text-decoration-none" href="{{ $article.Link }}">{{ $article.Title }}</a>
                 </h3>
-                <p class="blog-post-meta text-secondary">
-                    Published on <a href="#" class="font-weight-bold">2023-12-01</a>
-                    By <a href="#">LuStormstout</a>
-                </p>
+
+                {{ template "article-meta" $article }}
 
                 <hr>
 
