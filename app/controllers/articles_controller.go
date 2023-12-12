@@ -67,9 +67,6 @@ func (*ArticlesController) Show(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	} else {
-
-		fmt.Fprint(w, articleInfo.User.Link)
-
 		// 读取成功，显示文章
 		view.Render(w, view.D{
 			"Article": articleInfo,
