@@ -2,6 +2,7 @@ package user
 
 import (
 	"goblog/app/models"
+	"goblog/pkg/model"
 	"goblog/pkg/password"
 	"goblog/pkg/route"
 )
@@ -25,4 +26,13 @@ func (user *User) ComparePassword(_password string) bool {
 // Link to generate user link
 func (user User) Link() string {
 	return route.Name2URL("users.show", "id", user.GetStringID())
+}
+
+// All gets all users
+func All() ([]User, error) {
+	var users []User
+	if err := model.DB.Find(&users).Error; err != nil {
+		return users, err
+	}
+	return users, nil
 }

@@ -14,14 +14,16 @@
             </ol>
         </div>
 
-        <div class="p-4 bg-white rounded shadow-sm mb-3">
-            <h5>Author</h5>
-            <ol class="list-unstyled mb-0">
-                <li><a href="#">LuStormstout</a></li>
-                <li><a href="#">Alex</a></li>
-                <li><a href="#">Max</a></li>
-            </ol>
-        </div>
+        {{ if .users }}
+            <div class="p-4 bg-white rounded shadow-sm mb-3">
+                <h5>Author</h5>
+                <ol class="list-unstyled mb-0">
+                    {{ range $key, $user := .users }}
+                        <li><a href="{{ $user.Link }}">{{ $user.Name }}</a></li>
+                    {{ end }}
+                </ol>
+            </div>
+        {{ end }}
 
         <div class="p-4 bg-white rounded shadow-sm mb-3">
             <h5>Link</h5>
