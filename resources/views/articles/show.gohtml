@@ -13,14 +13,17 @@
 
             {{ .Article.Body }}
 
-            <form class="mt-4" action="{{ RouteName2URL "articles.delete" "id" .Article.GetStringID }}" method="post">
-                <button type="submit"
-                        onclick="return confirm('The deletion action is irreversible. Do you want to proceed with the deletion?')"
-                        class="btn btn-danger btn-sm">Delete
-                </button>
-                <a href="{{ RouteName2URL "articles.edit" "id" .Article.GetStringID }}"
-                   class="btn btn-outline-secondary btn-sm">Edit</a>
-            </form>
+            {{ if .CanModifyArticle }}
+                <form class="mt-4" action="{{ RouteName2URL "articles.delete" "id" .Article.GetStringID }}"
+                      method="post">
+                    <button type="submit"
+                            onclick="return confirm('The deletion action is irreversible. Do you want to proceed with the deletion?')"
+                            class="btn btn-danger btn-sm">Delete
+                    </button>
+                    <a href="{{ RouteName2URL "articles.edit" "id" .Article.GetStringID }}"
+                       class="btn btn-outline-secondary btn-sm">Edit</a>
+                </form>
+            {{ end }}
         </div>
     </div>
 {{ end }}
