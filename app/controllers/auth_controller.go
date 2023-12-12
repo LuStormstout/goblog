@@ -5,6 +5,7 @@ import (
 	"goblog/app/models/user"
 	"goblog/app/requests"
 	"goblog/pkg/auth"
+	"goblog/pkg/flash"
 	"goblog/pkg/view"
 	"net/http"
 )
@@ -42,6 +43,7 @@ func (*AuthController) DoRegister(w http.ResponseWriter, r *http.Request) {
 		// If validation passes, create user and redirect to home page
 		_ = _user.Create()
 		if _user.ID > 0 {
+			flash.Success("Registration successful! Welcome aboard!")
 			auth.Login(_user)
 			http.Redirect(w, r, "/", http.StatusFound)
 		} else {
@@ -65,6 +67,7 @@ func (*AuthController) DoLogin(w http.ResponseWriter, r *http.Request) {
 	// Verify credentials
 	if err := auth.Attempt(email, password); err == nil {
 		// If the login is successful, jump to the home page
+		flash.Success("Login successful! Enjoy your session.")
 		http.Redirect(w, r, "/", http.StatusFound)
 	} else {
 		// If the login fails, display the error message and jump to the login page
@@ -78,5 +81,6 @@ func (*AuthController) DoLogin(w http.ResponseWriter, r *http.Request) {
 
 func (*AuthController) Logout(w http.ResponseWriter, r *http.Request) {
 	auth.Logout()
+	flash.Success("Logout successful! Come back soon!")
 	http.Redirect(w, r, "/", http.StatusFound)
 }
