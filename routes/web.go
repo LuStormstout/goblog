@@ -31,6 +31,7 @@ func RegisterWebRoutes(router *mux.Router) {
 	router.HandleFunc("/auth/do-register", authController.DoRegister).Methods("POST").Name("auth.do-register")
 	router.HandleFunc("/auth/login", authController.Login).Methods("GET").Name("auth.login")
 	router.HandleFunc("/auth/do-login", authController.DoLogin).Methods("POST").Name("auth.do-login")
+	router.HandleFunc("/auth/logout", authController.Logout).Methods("GET").Name("auth.logout")
 
 	// 静态资源
 	router.PathPrefix("/css/").Handler(http.FileServer(http.Dir("./public")))

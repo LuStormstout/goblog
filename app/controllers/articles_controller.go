@@ -37,7 +37,9 @@ func (*ArticlesController) Index(
 	}
 
 	// 加载模板
-	view.Render(w, articles, "articles.index")
+	view.Render(w, view.D{
+		"Articles": articles,
+	}, "articles.index")
 }
 
 // Show 文章详情页
@@ -68,7 +70,9 @@ func (*ArticlesController) Show(w http.ResponseWriter, r *http.Request) {
 		}
 	} else {
 		// 读取成功，显示文章
-		view.Render(w, articleInfo, "articles.show")
+		view.Render(w, view.D{
+			"Article": articleInfo,
+		}, "articles.show")
 	}
 }
 
