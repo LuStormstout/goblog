@@ -1,6 +1,9 @@
 package user
 
-import "goblog/app/models"
+import (
+	"goblog/app/models"
+	"goblog/pkg/password"
+)
 
 type User struct {
 	models.BaseModel
@@ -14,6 +17,6 @@ type User struct {
 }
 
 // ComparePassword compares the user's password with the incoming password
-func (user *User) ComparePassword(password string) bool {
-	return user.Password == password
+func (user *User) ComparePassword(_password string) bool {
+	return password.CheckHash(_password, user.Password)
 }
