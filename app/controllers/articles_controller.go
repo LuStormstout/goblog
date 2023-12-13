@@ -19,17 +19,18 @@ type ArticlesController struct {
 }
 
 // Index 文章列表页
-func (ac *ArticlesController) Index(w http.ResponseWriter, _ *http.Request) {
-	// 获取结果集
-	articles, err := article.GetAll()
+func (ac *ArticlesController) Index(w http.ResponseWriter, r *http.Request) {
+	// 1. 获取结果集
+	articles, pagerData, err := article.GetAll(r, 2)
 
-	// 如果出现错误
 	if err != nil {
 		ac.ResponseForSQLError(w, err)
 	} else {
-		// 加载模板
+
+		// ---  2. 加载模板 ---
 		view.Render(w, view.D{
-			"Articles": articles,
+			"Articles":  articles,
+			"PagerData": pagerData,
 		}, "articles.index", "articles._article_meta")
 	}
 }

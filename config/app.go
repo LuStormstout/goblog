@@ -18,5 +18,8 @@ func init() {
 
 		// gorilla/sessions 在 Cookie 中加密数据时使用
 		"key": config.Env("APP_KEY", "AHO99RL1ApfPUQXIgUo3jPWZMpfL5y4o"),
+
+		// 用以生成链接
+		"url": config.Env("APP_URL", "http://localhost:3000"),
 	})
 }
