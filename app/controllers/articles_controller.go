@@ -6,6 +6,7 @@ import (
 	"goblog/app/policies"
 	"goblog/app/requests"
 	"goblog/pkg/auth"
+	"goblog/pkg/config"
 	"goblog/pkg/logger"
 	"goblog/pkg/route"
 	"goblog/pkg/view"
@@ -21,7 +22,7 @@ type ArticlesController struct {
 // Index 文章列表页
 func (ac *ArticlesController) Index(w http.ResponseWriter, r *http.Request) {
 	// 1. 获取结果集
-	articles, pagerData, err := article.GetAll(r, 2)
+	articles, pagerData, err := article.GetAll(r, config.GetInt("pagination.per_page"))
 
 	if err != nil {
 		ac.ResponseForSQLError(w, err)
