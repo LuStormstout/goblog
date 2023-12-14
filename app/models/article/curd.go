@@ -72,3 +72,19 @@ func GetByUserID(uid string) (articles []Article, err error) {
 	}
 	return articles, nil
 }
+
+// GetByCategoryID 获取某个分类下的全部文章
+func GetByCategoryID(categoryId string, r *http.Request, perPage int) ([]Article, pagination.ViewData, error) {
+	// 初始化分页实例
+	db := model.DB.Model(Article{}).Where("category_id = ?", categoryId).Order("created_at desc")
+	_pager := pagination.New(r, db, route.Name2URL("categories.show"), perPage)
+
+	// 获取视图数据
+	viewData := _pager.Paging()
+
+	// 获取数据
+	var articles []Article
+	_ = _pager.Results(&articles)
+
+	return articles, viewData, nil
+}

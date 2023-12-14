@@ -9,7 +9,7 @@ import (
 func ValidateCategoryForm(data category.Category) map[string][]string {
 	// 定制认证规则
 	rules := govalidator.MapData{
-		"name": []string{"required", "min:3", "max:8", "not_exists:categories,name"},
+		"name": []string{"required", "min:3", "max:32", "not_exists:categories,name"},
 	}
 
 	// 定制错误消息
