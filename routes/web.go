@@ -25,6 +25,11 @@ func RegisterWebRoutes(router *mux.Router) {
 	router.HandleFunc("/articles/{id:[0-9]+}", middlewares.Auth(articlesController.Update)).Methods("POST").Name("articles.update")
 	router.HandleFunc("/articles/{id:[0-9]+}/delete", middlewares.Auth(articlesController.Delete)).Methods("POST").Name("articles.delete")
 
+	// 文章分类相关页面
+	categoryController := new(controllers.CategoriesController)
+	router.HandleFunc("/categories/create", middlewares.Auth(categoryController.Create)).Methods("GET").Name("categories.create")
+	router.HandleFunc("/categories", middlewares.Auth(categoryController.Store)).Methods("POST").Name("categories.store")
+
 	// 用户认证
 	authController := new(controllers.AuthController)
 	router.HandleFunc("/auth/register", middlewares.Guest(authController.Register)).Methods("GET").Name("auth.register")
@@ -34,8 +39,8 @@ func RegisterWebRoutes(router *mux.Router) {
 	router.HandleFunc("/auth/logout", middlewares.Auth(authController.Logout)).Methods("POST").Name("auth.logout")
 
 	// 用户相关
-	usersController := new(controllers.UsersController)
-	router.HandleFunc("/users/{id:[0-9]+}", usersController.Show).Methods("GET").Name("users.show")
+	userController := new(controllers.UsersController)
+	router.HandleFunc("/users/{id:[0-9]+}", userController.Show).Methods("GET").Name("users.show")
 
 	// 静态资源
 	router.PathPrefix("/css/").Handler(http.FileServer(http.Dir("./public")))

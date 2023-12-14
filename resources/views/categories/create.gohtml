@@ -1,0 +1,25 @@
+{{ define "title" }}
+    Create category
+{{ end }}
+
+{{ define "main" }}
+    <div class="col-md-9 blog-main">
+        <div class="blog-post bg-white p-5 rounded shadow mb-4">
+            <h3>Create category</h3>
+            <form action="{{ RouteName2URL "categories.store" }}" method="post">
+                <div class="form-group mt-3">
+                    <label for="name">Name</label>
+                    <input type="text" name="name" id="name"
+                           class="form-control {{ if .Errors.name }} is-invalid {{ end }}" required>
+                    {{ with .Errors.name }}
+                        <div class="invalid-feedback">
+                            {{ . }}
+                        </div>
+                    {{ end }}
+                </div>
+
+                <button type="submit" class="btn btn-primary mt-3">Submit</button>
+            </form>
+        </div>
+    </div>
+{{ end }}
