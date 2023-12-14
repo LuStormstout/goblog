@@ -8,17 +8,18 @@
         <div class="p-4 bg-white rounded shadow-sm mb-3">
             <h5>Categories</h5>
             <ol class="list-unstyled mb-0">
-                <li><a href="#">Uncategorized</a></li>
-                <li><a href="#">Templates</a></li>
-                <li><a href="#">Database</a></li>
+                {{ range $key, $category := .Categories }}
+                    <li><a href="{{ $category.Link }}">{{ $category.Name }}</a></li>
+                {{ end }}
+                <li><a href="{{ RouteName2URL "categories.create" }}">Create Category</a></li>
             </ol>
         </div>
 
-        {{ if .users }}
+        {{ if .Users }}
             <div class="p-4 bg-white rounded shadow-sm mb-3">
                 <h5>Author</h5>
                 <ol class="list-unstyled mb-0">
-                    {{ range $key, $user := .users }}
+                    {{ range $key, $user := .Users }}
                         <li><a href="{{ $user.Link }}">{{ $user.Name }}</a></li>
                     {{ end }}
                 </ol>

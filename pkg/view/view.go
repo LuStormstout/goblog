@@ -1,6 +1,8 @@
 package view
 
+import "C"
 import (
+	"goblog/app/models/category"
 	"goblog/app/models/user"
 	"goblog/pkg/auth"
 	"goblog/pkg/flash"
@@ -31,7 +33,8 @@ func RenderTemplate(w io.Writer, name string, data D, tplFiles ...string) {
 	data["isLogin"] = auth.Check()
 	data["loginUser"] = auth.User
 	data["flash"] = flash.All()
-	data["users"], _ = user.All()
+	data["Users"], _ = user.All()
+	data["Categories"], _ = category.All()
 
 	// 生成模板文件
 	allFiles := getTemplateFiles(tplFiles...)
