@@ -5,6 +5,7 @@ import (
 	"goblog/app/models/article"
 	"goblog/app/models/category"
 	"goblog/app/requests"
+	"goblog/pkg/config"
 	"goblog/pkg/flash"
 	"goblog/pkg/route"
 	"goblog/pkg/view"
@@ -57,7 +58,7 @@ func (CategoryController *CategoriesController) Show(w http.ResponseWriter, r *h
 	// 读取对应的数据
 	_category, err := category.Get(id)
 
-	articles, pagerData, err := article.GetByCategoryID(_category.GetStringID(), r, 2)
+	articles, pagerData, err := article.GetByCategoryID(_category.GetStringID(), r, config.GetInt("pagination.per_page"))
 
 	if err != nil {
 		CategoryController.ResponseForSQLError(w, err)

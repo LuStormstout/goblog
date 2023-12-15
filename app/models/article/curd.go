@@ -77,7 +77,7 @@ func GetByUserID(uid string) (articles []Article, err error) {
 func GetByCategoryID(categoryId string, r *http.Request, perPage int) ([]Article, pagination.ViewData, error) {
 	// 初始化分页实例
 	db := model.DB.Model(Article{}).Where("category_id = ?", categoryId).Order("created_at desc")
-	_pager := pagination.New(r, db, route.Name2URL("categories.show"), perPage)
+	_pager := pagination.New(r, db, route.Name2URL("categories.show", "id", categoryId), perPage)
 
 	// 获取视图数据
 	viewData := _pager.Paging()
